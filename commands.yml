@@ -1,0 +1,9 @@
+---
+
+commands:
+
+- command: show version
+
+- command: show clock
+
+- command: show ip int br

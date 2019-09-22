@@ -1,0 +1,2 @@
+show clock
+*18:27:53.262 EET Sat Sep 21 2019

@@ -1,0 +1,45 @@
+---
+-
+  connection: local
+  gather_facts: false
+  hosts: routers
+  name: "Template Config"
+  tasks:
+    -
+      ios_config:
+        lines:
+          - "ip name-server vrf mgmt-vrf {{dns_ip}}"
+        provider: "{{login}}"
+      name: "Set mgmt DNS"
+    -
+      ios_command:
+        commands:
+          - "{{item.command}}"
+      name: "various show commands"
+      register: show_output
+      with_items: "{{commands}}"
+    -
+      copy:
+        content: |-
+            {{item.item.command}}
+            {{item.stdout[0]}}
+        dest: "output/{{inventory_hostname}}-{{item.item.command}}.txt"
+      name: "WRITE OUTPUT TO FILE PER DEVICE"
+      with_items: "{{ show_output.results }}"
+    -
+      ios_command:
+        commands:
+          - "show run | i ip name"
+          - "show version"
+      name: "show mgmt DNS"
+      register: show_output
+    -
+      debug: var=show_output.stdout_lines
+  vars:
+    login:
+      password: "{{password}}"
+      username: "{{username}}"
+  vars_files:
+    - creds.yml
+    - ip.yml
+    - commands.yml
